@@ -81,6 +81,7 @@ class Copartner():
     def sign(self, session, music_data, msg):
         works = music_data['works']
         task_id = music_data['id']
+        begin = False
         for work in works:
             _work = work['work']
             if work['completed']:
@@ -89,6 +90,9 @@ class Copartner():
                     "value": f"评分完成：{work['score']}分"
                 })
             else:
+                if not begin:
+                    msg.append({"name": "本次进度", "value": ""})
+                    begin = True
                 data = {
                     "params": self.get_params({
                         "taskId": task_id,
@@ -143,6 +147,7 @@ class Copartner():
             completed = music_data['completed']
             msg = [
                 {"name": "帐号信息", "value": f"{user_name}"},
+                {"name": "当前进度", "value": ""},
                 {"name": "今日完成状态", "value": f"{'已完成' if completed else '未完成'}"},
                 {"name": "当前获得积分", "value": music_data['integral']},
                 {"name": "已完成评定数", "value": music_data["completedCount"]},
