@@ -134,7 +134,15 @@ class Copartner():
         return False, "登录信息异常"
 
     def login_info(self, session):
-        return session.get(url=self.userInfoUrl, headers=self.headers).json()
+        try:
+            return session.get(url=self.userInfoUrl, headers=self.headers).json()
+        except Exception as e:
+            print(e)
+            return {
+                "profile": {
+                    "nickname": "获取用户信息异常"
+                }
+            }
 
     def main(self):
         session = requests.session()
