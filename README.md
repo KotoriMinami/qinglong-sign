@@ -10,13 +10,16 @@
 
 ## 🔨 Usage
 
+### 基于bash
+
 #### 1.拉取仓库
 
 **进入容器后运行以下命令**（docker exec -it ql bash）修改ql为你的青龙容器名字
 
 ```
-ql repo https://github.com/KotoriMinami/qinglong-sign.git "sign_" "" "checksendNotify"
+ql repo https://github.com/KotoriMinami/qinglong-sign.git "sign_"
 ```
+
 ```
 cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/config/sg_check.json
 ```

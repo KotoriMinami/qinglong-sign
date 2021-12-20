@@ -10,7 +10,7 @@ import execjs
 import json
 
 from Crypto.Cipher import AES
-from checksendNotify import send
+from notify import send
 
 
 def to_16(key):
