@@ -20,21 +20,21 @@ docker exec -it ql bash
 ```
 ql repo https://github.com/KotoriMinami/qinglong-sign.git "sign_"
 ```
-
 #### 3.拷贝配置文件
 ```
 cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/config/sg_check.json
 ```
-
 #### 4.安装下面两个依赖
 `PyExecJS`
 `pycrypto`
-不会的可以直接去 `控制面板 / 依赖管理 / Python3` 处添加依赖
+
+不会的可以直接去 web端的`控制面板 / 依赖管理 / Python3` 处添加依赖
+
 #### 5.配置json文件
+在青龙面板的配置目录（`/ql/config`）下找到 `sg_check.json` 文件 或 前往web端的`控制面板 / 配置文件` 下拉选择`sg_check.json`
 
-在青龙面板的配置目录（`/ql/config`）下找到 `sg_check.json` 文件
 
-根据配置说明进行抓包配置即可， 想单个脚本使用的朋友可[参考](https://github.com/KotoriMinami/qinglong-sign/issues/1)
+然后根据配置说明进行抓包配置即可， 想单个脚本使用的朋友可[参考](https://github.com/KotoriMinami/qinglong-sign/issues/1)
 
 ## ⚙ 配置说明
 
