@@ -4,37 +4,45 @@
     基于青龙面板的脚本库
 </div>
 
-## ✨ Features
+## ✨ 特性
 
 - 网易云音乐合伙人自动评分 ✔
 
-## 🔨 Usage
+## 🔨 使用
 
-### 基于bash
+#### 1.进入容器
+```
+docker exec -it ql bash
+```
+修改`ql`为你的青龙容器名字
 
-#### 1.拉取仓库
-
-**进入容器后运行以下命令**（docker exec -it ql bash）修改ql为你的青龙容器名字
-
+#### 2.拉取仓库
 ```
 ql repo https://github.com/KotoriMinami/qinglong-sign.git "sign_"
 ```
 
+#### 3.拷贝配置文件
 ```
 cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/config/sg_check.json
 ```
 
-#### 2.依赖管理面板中增加依赖
+#### 4.安装下面两个依赖
 `PyExecJS`
 `pycrypto`
+不会的可以直接去 `控制面板 / 依赖管理 / Python3` 处添加依赖
+#### 5.配置json文件
 
-#### 3.配置
+在青龙面板的配置目录（`/ql/config`）下找到 `sg_check.json` 文件
 
-在青龙面板的配置文件下找到 `sg_check.json` 文件
+根据配置说明进行抓包配置即可， 想单个脚本使用的朋友可[参考](https://github.com/KotoriMinami/qinglong-sign/issues/1)
 
-然后在 `MUSIC_COPARTNER` 处替换你的cookie
+## ⚙ 配置说明
 
-## 特别声明
+| 配置名称            | 说明          | 获取位置                            |
+|:----------------|:------------|:--------------------------------|
+| MUSIC_COPARTNER | 网易云音乐cookie | [网易云音乐](https://music.163.com/) |
+
+## 🔈 特别声明
 
 - 本仓库发布的脚本及其中涉及的任何解锁和解密分析脚本，仅用于测试和学习研究，禁止用于商业用途，不能保证其合法性，准确性，完整性和有效性，请根据情况自行判断。
 
