@@ -172,9 +172,11 @@ class Copartner():
 
 
 if __name__ == "__main__":
-    with open("/ql/config/sg_check.json", "r", encoding="utf-8") as f:
+    with open("/ql/config/check.json", "r", encoding="utf-8") as f:
         all_data = json.loads(f.read())
-        _check_item = all_data.get("MUSIC_COPARTNER", [])[0]
-        res = Copartner(_check_item).main()
+        _check_item = all_data.get("MUSIC_COPARTNER", [])
+        res = ""
+        for index, item in enumerate(_check_item):
+            res = f'{res}账号{index + 1}：\n{Copartner(item).main()}\n'
         print(res)
         send('网易音乐合伙人', res)
