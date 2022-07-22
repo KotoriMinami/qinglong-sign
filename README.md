@@ -26,7 +26,7 @@ cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/config/sg_check.json
 ```
 #### 4.安装下面两个依赖
 `PyExecJS`
-`pycrypto`
+`pycryptodome`
 
 不会的可以直接去 web端的`控制面板 / 依赖管理 / Python3` 处添加依赖
 
