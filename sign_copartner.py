@@ -62,10 +62,12 @@ class Copartner():
         self.i = get_i.call('a', 16)  # 随机生成长度为16的字符串
         self.iv = "0102030405060708"  # 偏移量
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
-            "Accept-Encoding": "gzip, deflate, br",
-            'Content-Type': 'application/x-www-form-urlencoded',
-            "Accept": "application/json"
+            "Accept": "application/json, text/javascript",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Origin": "http://mp.music.163.com",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 CloudMusic/0.1.1 NeteaseMusic/8.8.01"
         }
         self.musicTags = "3-A-1"
         self.musicScore = "3"
