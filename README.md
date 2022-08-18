@@ -10,6 +10,8 @@
 
 ## 🔨 使用
 
+由于青龙v2.12.0以后调整数据目录，log、db、scripts、config等目录迁移到 /ql/data 目录，请使用下面命令的时候注意一下自己的青龙面板版本，看是否需要在路径上加/data
+
 #### 1.进入容器
 ```
 docker exec -it ql bash
