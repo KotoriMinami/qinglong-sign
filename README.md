@@ -43,6 +43,7 @@ cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/config/sg_check.json
 | 配置名称            | 说明          | 获取位置                            |
 |:----------------|:------------|:--------------------------------|
 | MUSIC_COPARTNER | 网易云音乐cookie | [网易云音乐](https://music.163.com/) |
+| SMZDM           | 什么值得买cookie | [什么值得买](https://www.smzdm.com/) |
 
 ## 🔈 特别声明
 
