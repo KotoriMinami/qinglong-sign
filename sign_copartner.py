@@ -3,6 +3,9 @@
 cron: 0 8 * * *
 new Env('网易音乐合伙人');
 """
+import random
+from time import sleep
+
 import requests
 import base64
 import codecs
@@ -52,9 +55,11 @@ class Copartner():
 
     def __init__(self, check_item):
         self.csrf = None
-        self.musicDataUrl = "http://interface.music.163.com/api/music/partner/daily/task/get"
+        self.musicDataUrl = "https://interface.music.163.com/api/music/partner/daily/task/get"
         self.userInfoUrl = "https://music.163.com/api/nuser/account/get"
         self.signUrl = "https://interface.music.163.com/weapi/music/partner/work/evaluate?csrf_token="
+        self.extraMusicDataUrl = "https://interface.music.163.com/api/music/partner/extra/wait/evaluate/work/list"
+        self.reportListenUrl = 'https://interface.music.163.com/weapi/partner/resource/interact/report?csrf_token='
         self.g = '0CoJUm6Qyw8W8jud'  # buU9L(["爱心", "女孩", "惊恐", "大笑"])的值
         self.b = "010001"  # buU9L(["流泪", "强"])的值
         # buU9L(Rg4k.md)的值
@@ -69,8 +74,55 @@ class Copartner():
             "Origin": "http://mp.music.163.com",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 CloudMusic/0.1.1 NeteaseMusic/8.8.01"
         }
-        self.musicTags = "3-A-1"
-        self.musicScore = "3"
+        self.musicScoreRandomRange = [2,4]
+        self.waitRange = [15,20]
+        self.musicTags = [
+            [
+                "1-A-1",
+                "1-B-1",
+                "1-C-1",
+                "1-D-1",
+                "1-D-2"
+            ],
+            [
+                "2-A-1",
+                "2-B-1",
+                "2-C-1",
+                "2-D-1",
+                "2-D-2"
+            ],
+            [
+                "3-A-1",
+                "3-A-2",
+                "3-B-1",
+                "3-C-1",
+                "3-D-1",
+                "3-D-2",
+                "3-E-1",
+                "3-E-2"
+            ],
+            [
+                "4-A-1",
+                "4-A-2",
+                "4-B-1",
+                "4-C-1",
+                "4-D-1",
+                "4-D-2",
+                "4-E-1",
+                "4-E-2"
+            ],
+            [
+                "5-A-1",
+                "5-A-2",
+                "5-B-1",
+                "5-C-1",
+                "5-D-1",
+                "5-D-2",
+                "5-E-1",
+                "5-E-2"
+
+            ]
+        ]
         self.check_item = check_item
 
     def get_enc_sec_key(self):
@@ -79,6 +131,10 @@ class Copartner():
     def get_params(self, data):
         enc_text = str(data)
         return aes_encrypt(aes_encrypt(enc_text, self.g, self.iv), self.i, self.iv)
+
+    def wait_listen(self):
+        wait = random.randint(self.waitRange[0], self.waitRange[1])
+        sleep(wait)
 
     def sign(self, session, music_data, msg):
         works = music_data['works']
@@ -95,13 +151,16 @@ class Copartner():
                 if not begin:
                     msg.append({"name": "本次进度", "value": ""})
                     begin = True
+                self.wait_listen()  # 等都等了，一起等吧.. 要是加了获取列表时间和提交时间，也能用
+                score = self.get_random_score()
+                tags = self.get_random_tags(score)
                 data = {
                     "params": self.get_params({
                         "taskId": task_id,
                         "workId": _work['id'],
-                        "score": self.musicScore,
-                        "tags": self.musicTags,
-                        "customTags": "%5B%5D",
+                        "score": score,
+                        "tags": tags,
+                        "customTags": "[]",
                         "comment": "",
                         "syncYunCircle": "true",
                         "csrf_token": self.csrf
@@ -115,10 +174,70 @@ class Copartner():
                     if response["code"] == 200:
                         msg.append({
                             "name": f"{_work['name']}（{_work['authorName']}）",
-                            "value": f"评分完成：{self.musicScore}分"
+                            "value": f"评分完成：{score}分"
                         })
                 except Exception as e:
                     print(f"歌曲 {_work['name']} 评分异常,原因{str(e)}")
+
+    def sign_extra(self, session, music_data, task_id, msg):
+        work = music_data['work']
+        # 先上报，再提交
+        report_data = {
+            "params": self.get_params({
+                "workId": work['id'],
+                "resourceId": work['resourceId'],
+                "bizResourceId": "",
+                "interactType": "PLAY_END"
+            }),
+            "encSecKey": self.get_enc_sec_key()
+        }
+        try:
+            response = session.post(
+                url=f"{self.reportListenUrl}={self.csrf}",
+                data=report_data, headers=self.headers).json()
+            if response["code"] != 200:
+                msg.append({
+                    "name": f"{work['name']}（{work['authorName']}）",
+                    "value": f"上报失败：{response['message']}"
+                })
+                return;
+        except Exception as e:
+            print(f"歌曲 {work['name']} 上报失败,原因{str(e)}")
+            return;
+
+        # reportListen
+        score = self.get_random_score()
+        tags = self.get_random_tags(score)
+        data = {
+            "params": self.get_params({
+                "taskId": task_id,
+                "workId": work['id'],
+                "score": score,
+                "tags": tags,
+                "customTags": "[]",
+                "comment": "",
+                "syncYunCircle": "true",
+                "extraResource": "true",
+                "csrf_token": self.csrf
+            }).replace("\n", ""),
+            "encSecKey": self.get_enc_sec_key()
+        }
+        try:
+            response = session.post(
+                url=f"{self.signUrl}={self.csrf}",
+                data=data, headers=self.headers).json()
+            if response["code"] == 200:
+                msg.append({
+                    "name": f"{work['name']}（{work['authorName']}）",
+                    "value": f"评分完成：{score}分"
+                })
+            else:
+                msg.append({
+                    "name": f"{work['name']}（{work['authorName']}）",
+                    "value": f"评分失败：{response['message']}"
+                })
+        except Exception as e:
+            print(f"歌曲 {work['name']} 评分异常,原因{str(e)}")
 
     def valid(self, session):
         try:
@@ -134,6 +253,37 @@ class Copartner():
             user_name = self.login_info(session=session)["profile"]["nickname"]
             return music_data, user_name
         return False, "登录信息异常"
+
+    def get_random_score(self):
+        return random.randint(self.musicScoreRandomRange[0], self.musicScoreRandomRange[1])
+
+    def get_random_tags(self, score):
+        num_to_select = random.randint(1, 3)
+        current_score_tags = self.musicTags[score - 1]
+        selected_values = random.sample(current_score_tags, num_to_select)
+        return ','.join(selected_values)
+
+    def get_extra_music(self, session):
+        try:
+            content = session.get(url=self.extraMusicDataUrl,
+                                  headers={**self.headers, "Referer": "https://mp.music.163.com/"})
+        except Exception as e:
+            return [], f"登录验证异常,错误信息: {e}"
+        data = content.json()
+        if data["code"] == 301:
+            return False, data["message"]
+        if data["code"] == 200:
+            extra_music_data = data["data"]
+            computed_music = []
+            undone_music = []
+            for x in extra_music_data:
+                if x['completed']:
+                    computed_music.append(x)
+                else:
+                    undone_music.append(x)
+            extra_count = 7 - len(computed_music)
+            return [] if extra_count < 0 else undone_music[:extra_count], len(computed_music)
+        return [], "登录信息异常"
 
     def login_info(self, session):
         try:
@@ -158,12 +308,21 @@ class Copartner():
             msg = [
                 {"name": "帐号信息", "value": f"{user_name}"},
                 {"name": "当前进度", "value": ""},
-                {"name": "今日完成状态", "value": f"{'已完成' if completed else '未完成'}"},
-                {"name": "当前获得积分", "value": music_data['integral']},
-                {"name": "已完成评定数", "value": music_data["completedCount"]},
+                {"name": "基础评定完成状态", "value": f"{'已完成' if completed else '未完成'}"},
+                {"name": "基础评定获得积分", "value": music_data['integral']},
+                {"name": "基础评定已完成数", "value": music_data["completedCount"]},
             ]
             if not completed:
                 self.sign(session, music_data, msg)
+            extra_music_data, extra_music_computed_count = self.get_extra_music(session)
+            if len(extra_music_data):
+                msg.append({"name": "待额外评定数", "value": len(extra_music_data)})
+                task_id = music_data['id']
+                for x in extra_music_data:
+                    self.wait_listen()  # 此接口单次提交，随机等待15-20s，假装在听歌？
+                    self.sign_extra(session, x, task_id, msg)
+            else:
+                msg.append({"name": "额外评定完成数", "value": f"{extra_music_computed_count}"})
         else:
             msg = [
                 {"name": "帐号信息", "value": user_name},
