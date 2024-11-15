@@ -11,5 +11,11 @@
     {
       "cookie": "__jsluid_s=xxxxxx; __ckguid=xxxxxx; device_id=xxxxxx; homepage_sug=xxxxxx; r_sort_type=xxxxxx; _zdmA.vid=xxxxxx; sajssdk_2015_cross_new_user=xxxxxx; sensorsdata2015jssdkcross=xxxxxx; footer_floating_layer=xxxxxx; ad_date=xxxxxx; ad_json_feed=xxxxxx; zdm_qd=xxxxxx; sess=xxxxxx; user=xxxxxx; _zdmA.uid=xxxxxx; smzdm_id=xxxxxx; userId=xxxxxx; bannerCounter=xxxxxx; _zdmA.time=xxxxxx;"
     }
+  ],
+  "NINEBOT": [
+    {
+      "deviceId": "app中抓包/portal/api/user-sign/v1/sign接口，从请求参数中获取",
+      "authorization": "抓包接口同上，从请求头中获取"
+    }
   ]
 }

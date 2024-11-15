@@ -8,6 +8,7 @@
 
 - 网易云音乐合伙人自动评分 ✔
 - 什么值得买自动签到 （目前值得买签到增加验证码..签到用不了，看后边有没有大佬提供思路吧）
+- 九号出行APP自动签到 ✔
 
 ## 🔨 使用
 
@@ -41,10 +42,11 @@ cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/config/sg_check.json
 
 ## ⚙ 配置说明
 
-| 配置名称            | 说明          | 获取位置                            |
-|:----------------|:------------|:--------------------------------|
-| MUSIC_COPARTNER | 网易云音乐cookie | [网易云音乐](https://music.163.com/) |
-| SMZDM           | 什么值得买cookie | [什么值得买](https://www.smzdm.com/) |
+| 配置名称            | 说明          | 获取位置                                    |
+|:----------------|:------------|:----------------------------------------|
+| MUSIC_COPARTNER | 网易云音乐cookie | [网易云音乐](https://music.163.com/)         |
+| SMZDM           | 什么值得买cookie | [什么值得买](https://www.smzdm.com/)         |
+| NINEBOT         | 获取方式见配置说明   | [九号出行APP](https://www.ninebot.com/app/) |
 
 ## 🔈 特别声明
 
