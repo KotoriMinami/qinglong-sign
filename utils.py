@@ -4,12 +4,11 @@ import json
 from functools import wraps
 
 path_list = [
-    "/ql/scripts/sg_check.json",
+    "/ql/config/sg_check.json",
+    "/ql/data/config/sg_check.json",
     "sg_check.json",
-    "../sg_check.json",
     "./config/sg_check.json",
     "../config/sg_check.json",
-    "/sg_check.json",
 ]
 
 
