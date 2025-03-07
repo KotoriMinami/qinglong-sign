@@ -7,12 +7,10 @@
 ## ✨ 特性
 
 - 网易云音乐合伙人自动评分 ✔
-- 什么值得买自动签到 （目前值得买签到增加验证码..签到用不了，看后边有没有大佬提供思路吧）
 - 九号出行APP自动签到 ✔
 
 ## 🔨 使用
 
-由于青龙v2.12.0以后调整数据目录，log、db、scripts、config等目录迁移到 /ql/data 目录，请使用下面命令的时候注意一下自己的青龙面板版本，看是否需要在路径上加/data
 
 #### 1.进入容器
 ```
@@ -22,31 +20,45 @@ docker exec -it ql bash
 
 #### 2.拉取仓库
 ```
-ql repo https://github.com/KotoriMinami/qinglong-sign.git "sign_"
+ql repo https://github.com/KotoriMinami/qinglong-sign.git "sign_" "" "utils"
 ```
-#### 3.拷贝配置文件
+#### 3.配置脚本数据
+- 方式1 （使用json文件）
+
+复制配置文件到青龙config目录下
 ```
-cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/config/sg_check.json
+cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/data/config/sg_check.json
 ```
+
+在青龙面板的配置目录（`/ql/data/config`）下找到 `sg_check.json` 文件 或 前往web端的`控制面板 / 配置文件` 下拉选择`sg_check.json`，
+然后根据配置说明进行抓包配置即可。
+
+## ⚙ 配置说明
+
+| 配置名称            | 参数说明                                                                                                                                | 获取位置                                    |
+|:----------------|:------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------|
+| MUSIC_COPARTNER | "cookie"：网易云音乐cookie；<br/>"extra_count"（int类型）： 额外评定歌曲数，无此参数默认为`7`；<br/>"commit"（bool类型）：评定歌曲同时是否留言，如开启会从一言api随机获取一句内容进行评论，无此参数默认为`false` | [网易云音乐](https://music.163.com/)         |
+| NINEBOT         | "deviceId": "app中抓包/portal/api/user-sign/v1/sign接口，从请求参数中获取"<br/>"authorization": "抓包接口同上，从请求头中获取"                                                                                                                               | [九号出行APP](https://www.ninebot.com/app/) |
+
+- 方式2（配置环境变量）
+
+前往web端的`控制面板 / 环境变量` 点击创建变量，
+然后根据配置说明进行抓包配置即可。
+
+## ⚙ 配置说明
+
+| 配置名称                | 格式                        | 说明                                                                                                                                           | 获取位置                                    |
+|:--------------------|:--------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------|
+| MUSIC_COPARTNER_ENV | cookie#extra_count#commit | `cookie`、`extra_count`同上，`commit`为非0的值表示启用，默认不启用。<br/>其中`extra_count、commit`可不填写。<br/>多个账号`\|`分隔。<br/>例：`cookie1\|cookie2#7#1\|cookie3#8#0 ` | [网易云音乐](https://music.163.com/)         |
+| NINEBOT_ENV         | deviceId#authorization    | 同上，多个账号`\|` 分隔。<br/>例：`xxxxx#xxxx\|xxxx#xxxxx`                                                                                               | [九号出行APP](https://www.ninebot.com/app/) |
+
 #### 4.安装下面两个依赖
 `PyExecJS`
 `pycryptodome`
 
 不会的可以直接去 web端的`控制面板 / 依赖管理 / Python3` 处添加依赖
 
-#### 5.配置json文件
-在青龙面板的配置目录（`/ql/config`）下找到 `sg_check.json` 文件 或 前往web端的`控制面板 / 配置文件` 下拉选择`sg_check.json`
 
-
-然后根据配置说明进行抓包配置即可， 想单个脚本使用的朋友可[参考](https://github.com/KotoriMinami/qinglong-sign/issues/1)
-
-## ⚙ 配置说明
-
-| 配置名称            | 说明          | 获取位置                                    |
-|:----------------|:------------|:----------------------------------------|
-| MUSIC_COPARTNER | 网易云音乐cookie | [网易云音乐](https://music.163.com/)         |
-| SMZDM           | 什么值得买cookie | [什么值得买](https://www.smzdm.com/)         |
-| NINEBOT         | 获取方式见配置说明   | [九号出行APP](https://www.ninebot.com/app/) |
 
 ## 🔈 特别声明
 

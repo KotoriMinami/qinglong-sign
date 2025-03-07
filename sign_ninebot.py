@@ -9,6 +9,17 @@ import json
 
 
 from notify import send
+from utils import GetConfig
+
+def parse_accounts(env_str):
+    accounts = env_str.split('&')
+    result = []
+    for account in accounts:
+        device_id, authorization = account.split('#')
+        result.append({
+            "deviceId": device_id, "authorization": authorization
+        })
+    return result
 
 class Ninebot():
     name = "九号出行"
@@ -83,12 +94,18 @@ class Ninebot():
         return msg
 
 
+@GetConfig(script_name='NINEBOT')
+def main(*args, **kwargs):
+    accounts = kwargs.get('accounts')
+    accounts_env = kwargs.get('accounts_env')
+    if accounts_env:
+        accounts = parse_accounts(accounts_env)
+    res = ""
+    for index, account in enumerate(accounts):
+        res = f'{res}账号{index + 1}：\n{Ninebot(account).main()}\n'
+    print(res)
+    send('九号出行', res)
+
+
 if __name__ == "__main__":
-    with open("/ql/config/sg_check.json", "r", encoding="utf-8") as f:
-        all_data = json.loads(f.read())
-        _check_item = all_data.get("NINEBOT", [])
-        res = ""
-        for index, item in enumerate(_check_item):
-            res = f'{res}账号{index + 1}：\n{Ninebot(item).main()}\n'
-        print(res)
-        send('九号出行', res)
+    main()

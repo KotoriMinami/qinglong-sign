@@ -4,8 +4,6 @@ cron: 0 8 * * *
 new Env('网易音乐合伙人');
 """
 import random
-from time import sleep
-
 import requests
 import base64
 import codecs
@@ -13,21 +11,31 @@ import execjs
 import json
 
 from Crypto.Cipher import AES
+from time import sleep
+from utils import GetConfig
 from notify import send
 
 
-def to_16(key):
-    while len(key) % 16 != 0:
-        key += '\0'
-    return str.encode(key)
+def pkcs7padding(text):
+    bs = AES.block_size  # 16
+    length = len(text)
+    bytes_length = len(bytes(text, encoding='utf-8'))
+    padding_size = length if (bytes_length == length) else bytes_length
+    padding = bs - padding_size % bs
+    padding_text = chr(padding) * padding
+    return text + padding_text
 
 
 def aes_encrypt(text, key, iv):
-    bs = AES.block_size
-    pad2 = lambda s: s + (bs - len(s) % bs) * chr(bs - len(s) % bs)
-    encryptor = AES.new(to_16(key), AES.MODE_CBC, to_16(iv))
-    encrypt_aes = encryptor.encrypt(str.encode(pad2(text)))
-    encrypt_text = str(base64.encodebytes(encrypt_aes), encoding='utf-8')
+    key_bytes = bytes(key, encoding='utf-8')
+    _iv = bytes(iv, encoding='utf-8')
+    cipher = AES.new(key_bytes, AES.MODE_CBC, _iv)
+    # 处理明文
+    content_padding = pkcs7padding(text)
+    # 加密
+    encrypt_bytes = cipher.encrypt(bytes(content_padding, encoding='utf-8'))
+    # 重新编码
+    encrypt_text = str(base64.b64encode(encrypt_bytes), encoding='utf-8')
     return encrypt_text
 
 
@@ -35,6 +43,24 @@ def rsa_encrypt(text, pubKey, modulus):
     text = text[::-1]
     rs = int(codecs.encode(text.encode('utf-8'), 'hex_codec'), 16) ** int(pubKey, 16) % int(modulus, 16)
     return format(rs, 'x').zfill(256)
+
+
+# 获取一条关于网易云的一言
+def get_one_text():
+    url = "https://v1.hitokoto.cn/?c=j"
+    res = requests.get(url).json()
+    return res["hitokoto"]
+
+
+def parse_accounts(env_str):
+    accounts = env_str.split('&')
+    result = []
+    for account in accounts:
+        cookie, extra_count, commit = (account.split('#') + [None] * 3)[:3]
+        result.append({
+            "cookie": cookie, "extra_count": extra_count, "commit": commit
+        })
+    return result
 
 
 # 获取i值的函数，即随机生成长度为16的字符串
@@ -74,8 +100,8 @@ class Copartner():
             "Origin": "http://mp.music.163.com",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 CloudMusic/0.1.1 NeteaseMusic/8.8.01"
         }
-        self.musicScoreRandomRange = [2,4]
-        self.waitRange = [15,20]
+        self.musicScoreRandomRange = [2, 4]
+        self.waitRange = [15, 20]
         self.musicTags = [
             [
                 "1-A-1",
@@ -123,7 +149,9 @@ class Copartner():
 
             ]
         ]
-        self.check_item = check_item
+        self.cookie = check_item.get('cookie')
+        self.extra_count = min(15, check_item.get('extra_count') or 7)
+        self.enable_commit = bool(check_item.get('commit'))
 
     def get_enc_sec_key(self):
         return rsa_encrypt(self.i, self.b, self.c)
@@ -135,6 +163,17 @@ class Copartner():
     def wait_listen(self):
         wait = random.randint(self.waitRange[0], self.waitRange[1])
         sleep(wait)
+
+    def merge_commit_params(self, params):
+        if self.enable_commit:
+            params["commit"] = get_one_text()
+            params["syncComment"] = "false"
+            params["extraScore"] = str({
+                "1": self.get_random_score(),
+                "2": self.get_random_score(),
+                "3": self.get_random_score(),
+            })
+        return params
 
     def sign(self, session, music_data, msg):
         works = music_data['works']
@@ -154,17 +193,18 @@ class Copartner():
                 self.wait_listen()  # 等都等了，一起等吧.. 要是加了获取列表时间和提交时间，也能用
                 score = self.get_random_score()
                 tags = self.get_random_tags(score)
+                params = self.merge_commit_params({
+                    "taskId": task_id,
+                    "workId": _work['id'],
+                    "score": score,
+                    "tags": tags,
+                    "customTags": "[]",
+                    "comment": "",
+                    "syncYunCircle": "true",
+                    "csrf_token": self.csrf
+                })
                 data = {
-                    "params": self.get_params({
-                        "taskId": task_id,
-                        "workId": _work['id'],
-                        "score": score,
-                        "tags": tags,
-                        "customTags": "[]",
-                        "comment": "",
-                        "syncYunCircle": "true",
-                        "csrf_token": self.csrf
-                    }).replace("\n", ""),
+                    "params": self.get_params(params).replace("\n", ""),
                     "encSecKey": self.get_enc_sec_key()
                 }
                 try:
@@ -208,18 +248,21 @@ class Copartner():
         # reportListen
         score = self.get_random_score()
         tags = self.get_random_tags(score)
+        params = self.merge_commit_params({
+            "taskId": task_id,
+            "workId": work['id'],
+            "score": score,
+            "tags": tags,
+            "customTags": "[]",
+            "comment": "",
+            "syncYunCircle": "true",
+            "extraResource": "true",
+            "source": "mp-music-partner",
+            "csrf_token": self.csrf
+        })
+
         data = {
-            "params": self.get_params({
-                "taskId": task_id,
-                "workId": work['id'],
-                "score": score,
-                "tags": tags,
-                "customTags": "[]",
-                "comment": "",
-                "syncYunCircle": "true",
-                "extraResource": "true",
-                "csrf_token": self.csrf
-            }).replace("\n", ""),
+            "params": self.get_params(params).replace("\n", ""),
             "encSecKey": self.get_enc_sec_key()
         }
         try:
@@ -281,7 +324,7 @@ class Copartner():
                     computed_music.append(x)
                 else:
                     undone_music.append(x)
-            extra_count = 7 - len(computed_music)
+            extra_count = self.extra_count - len(computed_music)
             return [] if extra_count < 0 else undone_music[:extra_count], len(computed_music)
         return [], "登录信息异常"
 
@@ -298,7 +341,7 @@ class Copartner():
 
     def main(self):
         session = requests.session()
-        cookie = self.check_item.get("cookie")
+        cookie = self.cookie
         music_cookie = {item.split("=")[0]: item.split("=")[1] for item in cookie.split("; ")}
         self.csrf = music_cookie['__csrf']
         requests.utils.add_dict_to_cookiejar(session.cookies, music_cookie)
@@ -332,12 +375,18 @@ class Copartner():
         return msg
 
 
+@GetConfig(script_name='MUSIC_COPARTNER')
+def main(*args, **kwargs):
+    accounts = kwargs.get('accounts')
+    accounts_env = kwargs.get('accounts_env')
+    if accounts_env:
+        accounts = parse_accounts(accounts_env)
+    res = ""
+    for index, account in enumerate(accounts):
+        res = f'{res}账号{index + 1}：\n{Copartner(account).main()}\n'
+    print(res)
+    send('网易音乐合伙人', res)
+
+
 if __name__ == "__main__":
-    with open("/ql/config/sg_check.json", "r", encoding="utf-8") as f:
-        all_data = json.loads(f.read())
-        _check_item = all_data.get("MUSIC_COPARTNER", [])
-        res = ""
-        for index, item in enumerate(_check_item):
-            res = f'{res}账号{index + 1}：\n{Copartner(item).main()}\n'
-        print(res)
-        send('网易音乐合伙人', res)
+    main()
