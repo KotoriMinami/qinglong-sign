@@ -150,8 +150,8 @@ class Copartner():
             ]
         ]
         self.cookie = check_item.get('cookie')
-        self.extra_count = min(15, check_item.get('extra_count') or 7)
-        self.enable_commit = bool(check_item.get('commit'))
+        self.extra_count = min(15, int(check_item.get('extra_count') or 7))
+        self.enable_commit = check_item.get('commit') is not None and check_item.get('commit') != '0'
 
     def get_enc_sec_key(self):
         return rsa_encrypt(self.i, self.b, self.c)
