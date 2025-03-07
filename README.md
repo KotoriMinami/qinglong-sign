@@ -47,10 +47,10 @@ cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/data/config/sg_check.j
 
 ## ⚙ 配置说明
 
-| 配置名称                | 格式                        | 说明                                                                                                                                           | 获取位置                                    |
-|:--------------------|:--------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------|
-| MUSIC_COPARTNER_ENV | cookie#extra_count#commit | `cookie`、`extra_count`同上，`commit`为非0的值表示启用，默认不启用。<br/>其中`extra_count、commit`可不填写。<br/>多个账号`\|`分隔。<br/>例：`cookie1\|cookie2#7#1\|cookie3#8#0 ` | [网易云音乐](https://music.163.com/)         |
-| NINEBOT_ENV         | deviceId#authorization    | 同上，多个账号`\|` 分隔。<br/>例：`xxxxx#xxxx\|xxxx#xxxxx`                                                                                               | [九号出行APP](https://www.ninebot.com/app/) |
+| 配置名称                | 格式                        | 说明                                                                                                                                          | 获取位置                                    |
+|:--------------------|:--------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------|
+| MUSIC_COPARTNER_ENV | cookie#extra_count#commit | `cookie`、`extra_count`同上，`commit`为非0的值表示启用，默认不启用。<br/>其中`extra_count、commit`可不填写。<br/>多个账号`&`分隔。<br/>例：`cookie1&cookie2#7#1&cookie3#8#0 `   | [网易云音乐](https://music.163.com/)         |
+| NINEBOT_ENV         | deviceId#authorization    | 同上，多个账号`&` 分隔。<br/>例：`xxxxx#xxxx&xxxx#xxxxx`                                                                                                | [九号出行APP](https://www.ninebot.com/app/) |
 
 #### 4.安装下面两个依赖
 `PyExecJS`
