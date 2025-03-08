@@ -56,9 +56,9 @@ def parse_accounts(env_str):
     accounts = env_str.split('&')
     result = []
     for account in accounts:
-        cookie, extra_count, commit = (account.split('#') + [None] * 3)[:3]
+        cookie, extra_count, comment = (account.split('#') + [None] * 3)[:3]
         result.append({
-            "cookie": cookie, "extra_count": extra_count, "commit": commit
+            "cookie": cookie, "extra_count": extra_count, "comment": comment
         })
     return result
 
@@ -151,7 +151,7 @@ class Copartner():
         ]
         self.cookie = check_item.get('cookie')
         self.extra_count = min(15, int(check_item.get('extra_count') or 7))
-        self.enable_commit = check_item.get('commit') is not None and check_item.get('commit') != '0'
+        self.enable_comment = check_item.get('comment') is not None and check_item.get('comment') != '0'
 
     def get_enc_sec_key(self):
         return rsa_encrypt(self.i, self.b, self.c)
@@ -164,9 +164,9 @@ class Copartner():
         wait = random.randint(self.waitRange[0], self.waitRange[1])
         sleep(wait)
 
-    def merge_commit_params(self, params):
-        if self.enable_commit:
-            params["commit"] = get_one_text()
+    def merge_comment_params(self, params):
+        if self.enable_comment:
+            params["comment"] = get_one_text()
             params["syncComment"] = "false"
             params["extraScore"] = str({
                 "1": self.get_random_score(),
@@ -193,7 +193,7 @@ class Copartner():
                 self.wait_listen()  # 等都等了，一起等吧.. 要是加了获取列表时间和提交时间，也能用
                 score = self.get_random_score()
                 tags = self.get_random_tags(score)
-                params = self.merge_commit_params({
+                params = self.merge_comment_params({
                     "taskId": task_id,
                     "workId": _work['id'],
                     "score": score,
@@ -248,7 +248,7 @@ class Copartner():
         # reportListen
         score = self.get_random_score()
         tags = self.get_random_tags(score)
-        params = self.merge_commit_params({
+        params = self.merge_comment_params({
             "taskId": task_id,
             "workId": work['id'],
             "score": score,
