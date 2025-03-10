@@ -167,12 +167,7 @@ class Copartner():
     def merge_comment_params(self, params):
         if self.enable_comment:
             params["comment"] = get_one_text()
-            params["syncComment"] = "false"
-            params["extraScore"] = str({
-                "1": self.get_random_score(),
-                "2": self.get_random_score(),
-                "3": self.get_random_score(),
-            })
+            params["syncComment"] = "true"
         return params
 
     def sign(self, session, music_data, msg):
@@ -201,6 +196,13 @@ class Copartner():
                     "customTags": "[]",
                     "comment": "",
                     "syncYunCircle": "true",
+                    "syncComment": "false",
+                    "extraScore": str({
+                        "1": self.get_random_score(),
+                        "2": self.get_random_score(),
+                        "3": self.get_random_score(),
+                    }),
+                    "source": "mp-music-partner",
                     "csrf_token": self.csrf
                 })
                 data = {
@@ -256,6 +258,12 @@ class Copartner():
             "customTags": "[]",
             "comment": "",
             "syncYunCircle": "true",
+            "syncComment": "false",
+            "extraScore": str({
+                "1": self.get_random_score(),
+                "2": self.get_random_score(),
+                "3": self.get_random_score(),
+            }),
             "extraResource": "true",
             "source": "mp-music-partner",
             "csrf_token": self.csrf
