@@ -7,8 +7,6 @@ import random
 import requests
 import base64
 import codecs
-import execjs
-import json
 
 from Crypto.Cipher import AES
 from time import sleep
@@ -17,6 +15,15 @@ from notify import send
 
 
 def pkcs7padding(text):
+    """
+    实现PKCS#7填充算法
+    
+    Args:
+        text: 需要填充的文本
+        
+    Returns:
+        填充后的文本
+    """
     bs = AES.block_size  # 16
     length = len(text)
     bytes_length = len(bytes(text, encoding='utf-8'))
@@ -27,6 +34,17 @@ def pkcs7padding(text):
 
 
 def aes_encrypt(text, key, iv):
+    """
+    AES加密函数
+    
+    Args:
+        text: 待加密文本
+        key: 加密密钥
+        iv: 初始化向量
+        
+    Returns:
+        加密后的base64编码文本
+    """
     key_bytes = bytes(key, encoding='utf-8')
     _iv = bytes(iv, encoding='utf-8')
     cipher = AES.new(key_bytes, AES.MODE_CBC, _iv)
@@ -40,19 +58,44 @@ def aes_encrypt(text, key, iv):
 
 
 def rsa_encrypt(text, pubKey, modulus):
+    """
+    RSA加密函数
+    
+    Args:
+        text: 待加密文本
+        pubKey: 公钥
+        modulus: 模数
+        
+    Returns:
+        加密后的十六进制文本
+    """
     text = text[::-1]
     rs = int(codecs.encode(text.encode('utf-8'), 'hex_codec'), 16) ** int(pubKey, 16) % int(modulus, 16)
     return format(rs, 'x').zfill(256)
 
 
-# 获取一条关于网易云的一言
 def get_one_text():
+    """
+    获取一条关于网易云的一言
+    
+    Returns:
+        一条随机的一言文本
+    """
     url = "https://v1.hitokoto.cn/?c=j"
     res = requests.get(url).json()
     return res["hitokoto"]
 
 
 def parse_accounts(env_str):
+    """
+    解析账号配置字符串
+    
+    Args:
+        env_str: 账号配置字符串，格式为cookie&extra_count#comment
+        
+    Returns:
+        解析后的账号配置列表
+    """
     accounts = env_str.split('&')
     result = []
     for account in accounts:
@@ -64,22 +107,34 @@ def parse_accounts(env_str):
 
 
 # 获取i值的函数，即随机生成长度为16的字符串
-get_i = execjs.compile(r"""
-    function a(a) {
-        var d, e, b = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", c = "";
-        for (d = 0; a > d; d += 1)
-            e = Math.random() * b.length,
-            e = Math.floor(e),
-            c += b.charAt(e);
-        return c
-    }
-""")
+def get_random_string(length):
+    """
+    生成指定长度的随机字符串
+    
+    Args:
+        length: 要生成的字符串长度
+        
+    Returns:
+        指定长度的随机字符串
+    """
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    result = ""
+    for i in range(length):
+        result += random.choice(chars)
+    return result
 
 
 class Copartner():
+    """网易音乐合伙人签到类"""
     name = "音乐合伙人"
 
     def __init__(self, check_item):
+        """
+        初始化音乐合伙人签到类
+        
+        Args:
+            check_item: 包含cookie、extra_count和comment的字典
+        """
         self.csrf = None
         self.musicDataUrl = "https://interface.music.163.com/api/music/partner/daily/task/get"
         self.userInfoUrl = "https://music.163.com/api/nuser/account/get"
@@ -90,7 +145,7 @@ class Copartner():
         self.b = "010001"  # buU9L(["流泪", "强"])的值
         # buU9L(Rg4k.md)的值
         self.c = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7'
-        self.i = get_i.call('a', 16)  # 随机生成长度为16的字符串
+        self.i = get_random_string(16)  # 随机生成长度为16的字符串
         self.iv = "0102030405060708"  # 偏移量
         self.headers = {
             "Accept": "application/json, text/javascript",
@@ -154,23 +209,58 @@ class Copartner():
         self.enable_comment = check_item.get('comment') is not None and check_item.get('comment') != '0'
 
     def get_enc_sec_key(self):
+        """
+        获取加密的SecKey
+        
+        Returns:
+            加密后的SecKey
+        """
         return rsa_encrypt(self.i, self.b, self.c)
 
     def get_params(self, data):
+        """
+        获取加密后的参数
+        
+        Args:
+            data: 需要加密的数据
+            
+        Returns:
+            双重AES加密后的参数
+        """
         enc_text = str(data)
         return aes_encrypt(aes_encrypt(enc_text, self.g, self.iv), self.i, self.iv)
 
     def wait_listen(self):
+        """
+        模拟听歌等待时间
+        """
         wait = random.randint(self.waitRange[0], self.waitRange[1])
         sleep(wait)
 
     def merge_comment_params(self, params):
+        """
+        合并评论参数
+        
+        Args:
+            params: 原始参数字典
+            
+        Returns:
+            合并评论后的参数字典
+        """
         if self.enable_comment:
             params["comment"] = get_one_text()
             params["syncComment"] = "true"
         return params
 
     def sign(self, session, music_data, msg):
+        """
+        执行基础评定签到
+        
+        Args:
+            session: 请求会话
+            music_data: 音乐数据
+            msg: 消息列表，用于记录签到结果
+        """
         works = music_data['works']
         task_id = music_data['id']
         begin = False
@@ -222,6 +312,15 @@ class Copartner():
                     print(f"歌曲 {_work['name']} 评分异常,原因{str(e)}")
 
     def sign_extra(self, session, music_data, task_id, msg):
+        """
+        执行额外评定签到
+        
+        Args:
+            session: 请求会话
+            music_data: 音乐数据
+            task_id: 任务ID
+            msg: 消息列表，用于记录签到结果
+        """
         work = music_data['work']
         # 先上报，再提交
         report_data = {
@@ -242,10 +341,10 @@ class Copartner():
                     "name": f"{work['name']}（{work['authorName']}）",
                     "value": f"上报失败：{response['message']}"
                 })
-                return;
+                return
         except Exception as e:
             print(f"歌曲 {work['name']} 上报失败,原因{str(e)}")
-            return;
+            return
 
         # reportListen
         score = self.get_random_score()
@@ -291,6 +390,15 @@ class Copartner():
             print(f"歌曲 {work['name']} 评分异常,原因{str(e)}")
 
     def valid(self, session):
+        """
+        验证登录状态并获取音乐数据
+        
+        Args:
+            session: 请求会话
+            
+        Returns:
+            成功返回(音乐数据, 用户名)，失败返回(False, 错误信息)
+        """
         try:
             content = session.get(url=self.musicDataUrl,
                                   headers={**self.headers, "Referer": "https://mp.music.163.com/"})
@@ -306,15 +414,39 @@ class Copartner():
         return False, "登录信息异常"
 
     def get_random_score(self):
+        """
+        获取随机评分
+        
+        Returns:
+            随机评分值(2-4)
+        """
         return random.randint(self.musicScoreRandomRange[0], self.musicScoreRandomRange[1])
 
     def get_random_tags(self, score):
+        """
+        根据评分获取随机标签
+        
+        Args:
+            score: 评分值
+            
+        Returns:
+            随机选择的标签字符串，以逗号分隔
+        """
         num_to_select = random.randint(1, 3)
         current_score_tags = self.musicTags[score - 1]
         selected_values = random.sample(current_score_tags, num_to_select)
         return ','.join(selected_values)
 
     def get_extra_music(self, session):
+        """
+        获取额外评定音乐列表
+        
+        Args:
+            session: 请求会话
+            
+        Returns:
+            (未完成的额外评定列表, 已完成的额外评定数量)
+        """
         try:
             content = session.get(url=self.extraMusicDataUrl,
                                   headers={**self.headers, "Referer": "https://mp.music.163.com/"})
@@ -337,6 +469,15 @@ class Copartner():
         return [], "登录信息异常"
 
     def login_info(self, session):
+        """
+        获取登录用户信息
+        
+        Args:
+            session: 请求会话
+            
+        Returns:
+            用户信息字典
+        """
         try:
             return session.get(url=self.userInfoUrl, headers=self.headers).json()
         except Exception as e:
@@ -348,6 +489,12 @@ class Copartner():
             }
 
     def main(self):
+        """
+        主函数，执行签到流程
+        
+        Returns:
+            签到结果消息
+        """
         session = requests.session()
         cookie = self.cookie
         music_cookie = {item.split("=")[0]: item.split("=")[1] for item in cookie.split("; ")}
@@ -385,6 +532,13 @@ class Copartner():
 
 @GetConfig(script_name='MUSIC_COPARTNER')
 def main(*args, **kwargs):
+    """
+    主入口函数
+    
+    Args:
+        *args: 可变参数
+        **kwargs: 关键字参数，包含accounts和accounts_env
+    """
     accounts = kwargs.get('accounts')
     accounts_env = kwargs.get('accounts_env')
     if accounts_env:
