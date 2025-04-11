@@ -9,6 +9,7 @@ path_list = [
     "sg_check.json",
     "./config/sg_check.json",
     "../config/sg_check.json",
+    "sg_config.json",
 ]
 
 
