@@ -7,8 +7,6 @@ import random
 import requests
 import base64
 import codecs
-import execjs
-import json
 
 from Crypto.Cipher import AES
 from time import sleep
@@ -109,16 +107,21 @@ def parse_accounts(env_str):
 
 
 # 获取i值的函数，即随机生成长度为16的字符串
-get_i = execjs.compile(r"""
-    function a(a) {
-        var d, e, b = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", c = "";
-        for (d = 0; a > d; d += 1)
-            e = Math.random() * b.length,
-            e = Math.floor(e),
-            c += b.charAt(e);
-        return c
-    }
-""")
+def get_random_string(length):
+    """
+    生成指定长度的随机字符串
+    
+    Args:
+        length: 要生成的字符串长度
+        
+    Returns:
+        指定长度的随机字符串
+    """
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    result = ""
+    for i in range(length):
+        result += random.choice(chars)
+    return result
 
 
 class Copartner():
@@ -142,7 +145,7 @@ class Copartner():
         self.b = "010001"  # buU9L(["流泪", "强"])的值
         # buU9L(Rg4k.md)的值
         self.c = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7'
-        self.i = get_i.call('a', 16)  # 随机生成长度为16的字符串
+        self.i = get_random_string(16)  # 随机生成长度为16的字符串
         self.iv = "0102030405060708"  # 偏移量
         self.headers = {
             "Accept": "application/json, text/javascript",
