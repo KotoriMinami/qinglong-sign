@@ -10,6 +10,7 @@ import json
 
 from notify import send
 from utils import GetConfig
+from datetime import datetime
 
 def parse_accounts(env_str):
     accounts = env_str.split('&')
@@ -25,8 +26,8 @@ class Ninebot():
     name = "九号出行"
 
     def __init__(self, check_item):
-        self.signUrl = "https://cn-cbu-gateway.ninebot.com/portal/api/user-sign/v1/sign"
-        self.validUrl = "https://cn-cbu-gateway.ninebot.com/portal/api/user-sign/v1/status"
+        self.signUrl = "https://cn-cbu-gateway.ninebot.com/portal/api/user-sign/v2/sign"
+        self.validUrl = "https://cn-cbu-gateway.ninebot.com/portal/api/user-sign/v2/status"
         self.headers = {
             "Accept": "application/json, text/plain, */*",
             "Authorization": check_item.get("authorization"),
@@ -35,11 +36,11 @@ class Ninebot():
             "Connection": "keep-alive",
             "Content-Type": "application/json",
             "Host": "cn-cbu-gateway.ninebot.com",
-            "Origin": "https://api5-h5-app-bj.ninebot.com",
+            "Origin": "https://h5-bj.ninebot.com",
             "from_platform_1": "1",
             "language": "zh",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Segway v6 C 606093338",
-            "Referer": "https://api5-h5-app-bj.ninebot.com/"
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Segway v6 C 609033420",
+            "Referer": "https://h5-bj.ninebot.com/"
         }
         self.check_item = check_item
 
@@ -52,8 +53,8 @@ class Ninebot():
             if response.status_code == 200:
                 response_data = response.json()
                 if (response_data.get("code") == 0):
-                    checkin_num = response.json().get("data", {}).get('consecutiveDays')
-                    msg.append({"name": "签到成功", "value": f"已连续签到{checkin_num}天"})
+                    # checkin_num = response.json().get("data", {}).get('consecutiveDays')
+                    msg.append({"name": "签到成功", "value": f""})
                 else:
                     msg.append({"name": "签到失败", "value": f"{response_data.get('msg')}"})
         except Exception as e:
@@ -64,7 +65,7 @@ class Ninebot():
 
     def valid(self, session):
         try:
-            content = session.get(url=self.validUrl, headers={**self.headers})
+            content = session.get(url=f"{self.validUrl}?t={int(datetime.now().timestamp() * 1000)}", headers={**self.headers})
         except Exception as e:
             return False, f"登录验证异常,错误信息: {e}"
         json_data = content.json()
