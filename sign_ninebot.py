@@ -33,14 +33,15 @@ class Ninebot():
             "Authorization": check_item.get("authorization"),
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "zh-CN,zh-Hans;q=0.9",
-            "Connection": "keep-alive",
             "Content-Type": "application/json",
             "Host": "cn-cbu-gateway.ninebot.com",
             "Origin": "https://h5-bj.ninebot.com",
             "from_platform_1": "1",
             "language": "zh",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Segway v6 C 609033420",
-            "Referer": "https://h5-bj.ninebot.com/"
+            "Referer": "https://h5-bj.ninebot.com/",
+            "sys_language": "zh-CN",
+            "platform": "h5"
         }
         self.check_item = check_item
 
