@@ -16,9 +16,9 @@ def parse_accounts(env_str):
     accounts = env_str.split('&')
     result = []
     for account in accounts:
-        device_id, authorization = account.split('#')
+        device_id, authorization, ua = account.split('#')
         result.append({
-            "deviceId": device_id, "authorization": authorization
+            "deviceId": device_id, "authorization": authorization, "ua": ua
         })
     return result
 
@@ -38,10 +38,12 @@ class Ninebot():
             "Origin": "https://h5-bj.ninebot.com",
             "from_platform_1": "1",
             "language": "zh",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Segway v6 C 609033420",
+            "User-Agent": check_item.get("ua"),
             "Referer": "https://h5-bj.ninebot.com/",
             "sys_language": "zh-CN",
-            "platform": "h5"
+            "platform": "h5",
+            "device_id": check_item.get("device_id"),
+            "Connection": "keep-alive"
         }
         self.check_item = check_item
 

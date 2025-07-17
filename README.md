@@ -38,7 +38,7 @@ cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/data/config/sg_check.j
 | 配置名称            | 参数说明                                                                                                                                                                                | 获取位置                                    |
 |:----------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------|
 | MUSIC_COPARTNER | "cookie"：网易云音乐cookie；<br/>"extra_count"（int类型）： 额外评定歌曲数，无此参数默认为`7`；<br/>"comment"（bool类型）：评定歌曲同时是否留言，如开启会从一言api随机获取一句内容进行评论，无此参数默认为`false`<br/>注意：启用评论后，会同步评论至歌曲下，这样才会获得积分，防社死默认关闭。 | [网易云音乐](https://music.163.com/)         |
-| NINEBOT         | "deviceId": "app中抓包/portal/api/user-sign/v1/sign（高版本app为/portal/api/user-sign/v2/sign）接口，从请求参数中获取"<br/>"authorization": "抓包接口同上，从请求头中获取"                                                                                  | [九号出行APP](https://www.ninebot.com/app/) |
+| NINEBOT         | "deviceId": "app中抓包/portal/api/user-sign/v1/sign（高版本app为/portal/api/user-sign/v2/sign）接口，从请求参数中获取"<br/>"authorization": "抓包接口同上，从请求头中获取"<br/>"ua": "抓包接口同上，从请求头中`User-Agent`获取"     | [九号出行APP](https://www.ninebot.com/app/) |
 
 - 方式2（配置环境变量）
 
@@ -47,10 +47,10 @@ cp /ql/repo/KotoriMinami_qinglong-sign/sg_config.json /ql/data/config/sg_check.j
 
 ## ⚙ 配置说明
 
-| 配置名称                | 格式                        | 说明                                                                                                                                                  | 获取位置                                    |
-|:--------------------|:--------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------|
+| 配置名称                | 格式                        | 说明                                                                                                                                                                                            | 获取位置                                    |
+|:--------------------|:--------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------|
 | MUSIC_COPARTNER_ENV | cookie#extra_count#comment | `cookie`、`extra_count`同上，`comment`为非0的值表示启用，默认不启用。<br/>其中`extra_count、comment`可不填写，如填写需同时填写。<br/>注意：启用评论后，会同步评论至歌曲下，这样才会获得积分，防社死默认关闭。<br/>多个账号`&`分隔。<br/>例：`cookie1&cookie2#7#1&cookie3#8#0 ` | [网易云音乐](https://music.163.com/)         |
-| NINEBOT_ENV         | deviceId#authorization    | 同上，多个账号`&` 分隔。<br/>例：`deviceId#authorization&deviceId#authorization`                                                                                                        | [九号出行APP](https://www.ninebot.com/app/) |
+| NINEBOT_ENV         | deviceId#authorization    | 同上，多个账号`&` 分隔。<br/>例：`deviceId#authorization#ua&deviceId#authorization#ua`                                                                                                                    | [九号出行APP](https://www.ninebot.com/app/) |
 
 #### 4.安装下面两个依赖
 `PyExecJS`
