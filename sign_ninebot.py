@@ -30,10 +30,11 @@ def parse_accounts(env_str):
     accounts = env_str.split('&')
     result = []
     for account in accounts:
-        device_id, authorization = account.split('#')
+        device_id, authorization, ua = account.split('#')
         result.append({
             "deviceId": device_id, 
-            "authorization": authorization
+            "authorization": authorization,
+            "ua": ua
         })
     return result
 
@@ -46,7 +47,7 @@ class Ninebot():
         self.headers = {
             "Authorization": check_item.get("authorization"),
             "language": "zh",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+            "User-Agent": check_item.get("ua"),
             "Accept-Encoding": "gzip, deflate",
             "Connection": "keep-alive"
         }
